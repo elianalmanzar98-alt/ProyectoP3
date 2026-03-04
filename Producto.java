@@ -1,4 +1,4 @@
-package ProyectoP3;
+
 import java.io.Serializable;
 
 public class Producto implements Serializable {
@@ -20,9 +20,12 @@ public class Producto implements Serializable {
     public int getId() { return id; }
     public String getNombre() { return nombre; }
     public double getPrecio() { return precio; }
-    public int getStock() { return stock; }
     
-    public void reducirStock(int cantidad) throws StockInsuficienteException {
+    
+    public synchronized int getStock() { return stock; }
+    
+    
+    public synchronized void reducirStock(int cantidad) throws StockInsuficienteException {
         if (cantidad > this.stock) throw new StockInsuficienteException("No hay suficiente stock.");
         this.stock -= cantidad;
     }

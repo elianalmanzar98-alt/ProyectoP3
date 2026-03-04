@@ -1,6 +1,6 @@
-package ProyectoP3;
+import java.io.Serializable;
 
-public class DetallePedido {
+public class DetallePedido implements Serializable {
     private final Producto producto;
     private int cantidad;
 

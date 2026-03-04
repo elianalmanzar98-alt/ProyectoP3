@@ -64,5 +64,15 @@ public class Pedido {
     public void cancelar() {
         estado = CANCELADO;
     }
+
+    public void setEstado(String string) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setEstado'");
+    }
+
+    public Object getCliente() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getCliente'");
+    }
 }
 

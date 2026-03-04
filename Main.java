@@ -1,90 +1,82 @@
-package ProyectoP3;
-
 import java.util.Scanner;
 
 public class Main {
-
     public static void main(String[] args) {
-
         SistemaGestionPedidos sistema = new SistemaGestionPedidos();
+        sistema.cargarProductos();
+
+       
+        ProcesadorPedidos procesador = new ProcesadorPedidos(sistema);
+        GeneradorReportes reportador = new GeneradorReportes(sistema);
+        procesador.start();
+        reportador.start();
 
         try (Scanner scanner = new Scanner(System.in)) {
-            
-            sistema.agregarProducto(new Producto(1, "Laptop", 50000, 5));
-            sistema.agregarProducto(new Producto(2, "Mouse", 1000, 20));
-            
-            sistema.agregarCliente(new ClienteRegular(1, "Juan"));
-            sistema.agregarCliente(new ClienteVIP(2, "Maria"));
-            
             boolean salir = false;
-            
+
             while (!salir) {
-                
-                System.out.println("\n1. Listar productos");
-                System.out.println("2. Buscar producto por nombre");
-                System.out.println("3. Crear pedido");
-                System.out.println("4. Listar pedidos");
-                System.out.println("5. Salir");
-                System.out.print("Seleccione una opcion: ");
-                
-                
-                int opcion;
+                System.out.println("\n    SISTEMA DE GESTION    ");
+                System.out.println("1. Registrar Producto");
+                System.out.println("2. Registrar Cliente");
+                System.out.println("3. Listar Productos");
+                System.out.println("4. Crear Pedido (Múltiples productos)");
+                System.out.println("5. Ver Pedidos");
+                System.out.println("0. Salir");
+                System.out.print("Seleccione: ");
+
+                int opcion = Integer.parseInt(scanner.nextLine());
+
                 try {
-                    opcion = Integer.parseInt(scanner.nextLine());
-                } catch (NumberFormatException e) {
-                    System.out.println("Error: Ingrese un número válido.");
-                    continue;
-                }
-                
-                try {
-                    
                     switch (opcion) {
-                        
-                        case 1 -> {
-                            System.out.println("    Productos disponibles   ");
-                            sistema.listarProductos();
+                        case 1 -> { 
+                            System.out.print("ID: "); int id = Integer.parseInt(scanner.nextLine());
+                            System.out.print("Nombre: "); String nom = scanner.nextLine();
+                            System.out.print("Precio: "); double pre = Double.parseDouble(scanner.nextLine());
+                            System.out.print("Stock inicial: "); int st = Integer.parseInt(scanner.nextLine());
+                            sistema.agregarProducto(new Producto(id, nom, pre, st));
+                            System.out.println("Producto guardado.");
                         }
-                        
-                        case 2 -> {
-                            System.out.println("Ingrese nombre:");
-                            String nombre = scanner.nextLine();
-                            sistema.buscarProductoPorNombre(nombre);
+                        case 2 -> { 
+                            System.out.print("ID: "); int idC = Integer.parseInt(scanner.nextLine());
+                            System.out.print("Nombre: "); String nomC = scanner.nextLine();
+                            System.out.print("Dirección: "); String dir = scanner.nextLine();
+                            sistema.agregarCliente(new ClienteRegular(idC, nomC, dir));
+                            System.out.println("Cliente registrado.");
                         }
-                        
-                        case 3 -> {
-                           
-
-                            Pedido pedido = sistema.crearPedido(new ClienteRegular(3, "ClientePrueba"));
+                        case 3 -> sistema.listarProductos();
+                        case 4 -> { 
+                            sistema.listarClientes();
+                            System.out.print("ID del Cliente para el pedido: ");
+                            Cliente c = sistema.buscarClientePorId(Integer.parseInt(scanner.nextLine()));
                             
-                            
-                            Producto producto = sistema.buscarProductoPorId(1);
-                            
-                            
-                            pedido.agregarProducto(producto, 1);
-                            
-                          
-                            pedido.confirmarPedido();
+                            if (c != null) {
+                                Pedido nuevoPedido = sistema.crearPedido(c);
+                                boolean agregando = true;
+                                while (agregando) {
+                                    sistema.listarProductos();
+                                    System.out.print("ID Producto a agregar (0 para finalizar): ");
+                                    int idP = Integer.parseInt(scanner.nextLine());
+                                    if (idP == 0) break;
+                                    
+                                    System.out.print("Cantidad: ");
+                                    int cant = Integer.parseInt(scanner.nextLine());
+                                    
+                                    Producto p = sistema.buscarProductoPorId(idP);
+                                    nuevoPedido.agregarProducto(p, cant);
+                                    System.out.println("¡Agregado!");
+                                }
+                                nuevoPedido.confirmarPedido(); 
+                                sistema.guardarPedidos();
+                            }
                         }
-                        
-                        case 4 -> {
-                            System.out.println("    Historial de Pedidos  ");
-                            sistema.listarPedidos();
+                        case 5 -> sistema.getPedidos().forEach(System.out::println);
+                        case 0 -> {
+                            salir = true;
+                            procesador.interrupt();
                         }
-                        
-                        case 5 -> salir = true;
-
-                        default -> System.out.println("Opcion no valida ");
                     }
-                    
-                } catch (ProductoNoEncontradoException | StockInsuficienteException | PedidoInvalidoException e) {
-                    
-                    System.out.println("Error en la operación: " + e.getMessage());
                 } catch (Exception e) {
-                    
-                    System.out.println("Error inesperado: " + e.getMessage());
-                } finally {
-                    
-                    System.out.println(" finalizando... \n");
+                    System.out.println("Error: " + e.getMessage());
                 }
             }
         }

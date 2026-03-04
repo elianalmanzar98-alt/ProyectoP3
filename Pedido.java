@@ -1,37 +1,44 @@
-package ProyectoP3;
 
 
+import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
-import java.text.SimpleDateFormat;
-
-public class Pedido {
-    private Cliente cliente;
-    private List<DetallePedido> detalles; 
+public class Pedido implements Serializable {
+    private final Cliente cliente;
+    private final List<DetallePedido> detalles; 
     private final Date fechaCreacion; 
+    private String estado; 
 
     public Pedido(Cliente cliente) {
         this.cliente = cliente;
         this.detalles = new ArrayList<>(); 
         this.fechaCreacion = new Date();
+        this.estado = "PENDIENTE"; 
     }
 
-    public void agregarProducto(Producto producto, int cantidad) throws StockInsuficienteException {
-        if (producto.getStock() < cantidad) {
-            throw new StockInsuficienteException("Stock insuficiente."); 
-        }
+    
+    public synchronized String getEstado() { return estado; }
+    public synchronized void setEstado(String estado) { this.estado = estado; }
+    
+    public Date getFechaCreacion() { return this.fechaCreacion; }
+    public Cliente getCliente() { return cliente; }
+
+    
+    public synchronized void agregarProducto(Producto producto, int cantidad) throws StockInsuficienteException {
         producto.reducirStock(cantidad);
         detalles.add(new DetallePedido(producto, cantidad));
     }
 
-    public void confirmarPedido() throws PedidoInvalidoException {
+    public synchronized void confirmarPedido() throws PedidoInvalidoException {
         if (detalles.isEmpty()) {
             throw new PedidoInvalidoException("Pedido vacio."); 
         }
+        this.estado = "CONFIRMADO"; 
         System.out.println("Pedido confirmado.");
     }
 
-    public double calcularTotal() {
+    public synchronized double calcularTotal() {
         double total = 0;
         for (DetallePedido d : detalles) { total += d.calcularSubtotal(); }
         return cliente.aplicarDescuento(total);
@@ -40,6 +47,7 @@ public class Pedido {
     @Override
     public String toString() {
         SimpleDateFormat fmt = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss"); 
-        return "Cliente: " + cliente.getNombre() + " | Fecha: " + fmt.format(fechaCreacion) + " | Total: " + calcularTotal();
+        return "Cliente: " + cliente.getNombre() + " | Fecha: " + fmt.format(fechaCreacion) + 
+               " | Estado: " + estado + " | Total: " + calcularTotal();
     }
 }

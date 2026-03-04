@@ -1,0 +1,8 @@
+    REPORTE CONSOLIDADO DEL SISTEMA   
+Fecha de generacion: Tue Mar 03 23:11:29 AST 2026
+Total de productos: 7
+Total de clientes: 0
+Pedidos CONFIRMADOS: 0
+Pedidos PROCESADOS: 0
+
+--- Productos con Stock Bajo (< 5 unidades) ---

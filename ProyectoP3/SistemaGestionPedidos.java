@@ -111,5 +111,9 @@ public class SistemaGestionPedidos {
             System.out.println("Pedido " + pedidos[i].getId() + " - Estado: " + pedidos[i].getEstado());
         }
     }
+
+    public Iterable<Pedido> getPedidos() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }
 
